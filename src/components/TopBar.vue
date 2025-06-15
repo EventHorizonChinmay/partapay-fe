@@ -1,13 +1,11 @@
 <template>
   <v-app-bar app color="primary" density="comfortable">
     <!-- Hamburger Menu Button for All Screen Sizes -->
-    <v-app-bar-nav-icon 
-      @click="toggleDrawer"
+    <v-app-bar-nav-icon
+      @click="() => (loginStore.showSideNavList = !loginStore.showSideNavList)"
     ></v-app-bar-nav-icon>
-    
-    <v-app-bar-title class="text-h6 font-weight-bold">
-      PartaPay
-    </v-app-bar-title>
+
+    <v-app-bar-title class="text-h6 font-weight-bold"> PartaPay </v-app-bar-title>
 
     <v-spacer />
 
@@ -43,6 +41,10 @@
 
 <script setup lang="ts">
 import { useAppTheme } from '@/composables/useTheme'
+
+import { useLoginStore } from '@/stores/loginStore'
+
+const loginStore = useLoginStore()
 
 const { toggleTheme, isDark, currentTheme } = useAppTheme()
 

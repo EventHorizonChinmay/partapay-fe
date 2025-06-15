@@ -1,16 +1,15 @@
 <template>
   <v-app>
     <!-- Navigation Drawer -->
-    
+
     <!-- Main Content Area -->
     <v-main>
       <!-- Top App Bar -->
       <TopBar @toggle-drawer="toggleDrawer" />
       <div class="mt-8">
-
-        <NavigationDrawer ref="drawerRef" />
+        <NavigationDrawer />
       </div>
-      
+
       <!-- Page Content with proper spacing -->
       <div class="content-wrapper">
         <router-view />
@@ -20,15 +19,23 @@
 </template>
 
 <script setup lang="ts">
+// vue related imports
 import { ref } from 'vue'
+
+//Stores
+import { useLoginStore } from '@/stores/loginStore'
+
+//COmponents
 import NavigationDrawer from '@/components/NavigationDrawer.vue'
 import TopBar from '@/components/TopBar.vue'
 
-const drawerRef = ref(null)
+const loginStore = useLoginStore()
+
+const drawerRef = ref(loginStore.showSideNavList)
 
 const toggleDrawer = () => {
   if (drawerRef.value) {
-    drawerRef.value.drawer = !drawerRef.value.drawer
+    loginStore.showSideNavList = !loginStore.showSideNavList
   }
 }
 </script>
