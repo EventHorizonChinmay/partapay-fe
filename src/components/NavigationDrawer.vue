@@ -1,12 +1,13 @@
 <template>
   <v-navigation-drawer
+    v-model="showDrawer"
     :permanent="$vuetify.display.lgAndUp"
     :temporary="$vuetify.display.mdAndDown"
     :rail="$vuetify.display.lgAndUp && !showDrawer"
     :rail-width="72"
     :width="showDrawer ? 280 : 80"
     location="left"
-    class="drawer-below-appbar"
+    :class="{ 'drawer-below-appbar': $vuetify.display.lgAndUp }"
   >
     <!-- User Profile - Show avatar only in rail mode -->
     <v-list>
@@ -123,7 +124,7 @@ const menuItems = [
 
 <style scoped>
 .drawer-below-appbar {
-  top: 64px !important; /* Position below the app bar */
+  top: 64px !important; /* Position below the app bar only on desktop */
   height: calc(100vh - 64px) !important;
 }
 </style>

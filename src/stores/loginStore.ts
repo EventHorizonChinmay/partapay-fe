@@ -6,7 +6,7 @@ export const useLoginStore = defineStore('login', () => {
   const loginDetails = ref(null)
   const userIndex = ref(0)
 
-  const showSideNavList = ref(true)
+  const showSideNavList = ref(false)
 
 
   const getLoginDetails = computed(() => {
