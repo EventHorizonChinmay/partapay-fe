@@ -1,31 +1,34 @@
 <template>
-  <v-navigation-drawer 
-    v-model="drawer"
+  <v-navigation-drawer
+    v-model="showDrawer"
     :permanent="$vuetify.display.lgAndUp"
     :temporary="$vuetify.display.mdAndDown"
-    :rail="$vuetify.display.lgAndUp && !drawer"
+    :rail="$vuetify.display.lgAndUp && !showDrawer"
     :rail-width="72"
-    width="280"
+    :width="showDrawer ? 280 : 80"
     location="left"
-    class="drawer-below-appbar"
+    :class="{ 'drawer-below-appbar': $vuetify.display.lgAndUp }"
   >
     <!-- User Profile - Show avatar only in rail mode -->
     <v-list>
-      <v-list-item
-        v-if="!drawer"
-        class="text-center pa-2"
-      >
+      <v-list-item v-if="!showDrawer" class="text-center pa-2">
         <v-avatar size="40">
           <v-img src="https://randomuser.me/api/portraits/men/85.jpg"></v-img>
         </v-avatar>
       </v-list-item>
-      
+
       <v-list-item
         v-else
         prepend-avatar="https://randomuser.me/api/portraits/men/85.jpg"
         title="John Doe"
         subtitle="john@example.com"
-      ></v-list-item>
+      >
+        <span v-if="owedAmnt > 0" class="text-red text-subtitle-2">Owe: ${{ owedAmnt }}</span>
+        <span v-else-if="owedAmnt < 0" class="text-green text-subtitle-2"
+          >To receive: ${{ -owedAmnt }}</span
+        >
+        <span v-else="owedAmnt < 0" class="text-blue text-subtitle-2">All settled</span>
+      </v-list-item>
     </v-list>
 
     <v-divider></v-divider>
@@ -37,18 +40,16 @@
         :key="item.title"
         :to="item.to"
         :prepend-icon="item.icon"
-        :title="drawer ? item.title : undefined"
+        :title="showDrawer ? item.title : undefined"
         color="primary"
         class="mb-1"
         @click="handleMenuItemClick"
       >
         <!-- Tooltip for rail mode -->
-        <v-tooltip 
-          v-if="!drawer"
-          activator="parent" 
-          location="end"
-        >
-          {{ item.title }}
+        <v-tooltip v-if="!showDrawer" activator="parent" location="end">
+          <span class="bg-white text-gray">
+            {{ item.title }}
+          </span>
         </v-tooltip>
       </v-list-item>
     </v-list>
@@ -56,21 +57,18 @@
     <!-- Theme Status at bottom -->
     <template v-slot:append>
       <div class="pa-2">
-        <v-chip 
-          v-if="drawer"
-          :color="isDark ? 'purple' : 'amber'" 
+        <v-chip
+          v-if="showDrawer"
+          :color="isDark ? 'purple' : 'amber'"
           size="small"
           :prepend-icon="isDark ? 'mdi-weather-night' : 'mdi-weather-sunny'"
         >
           {{ isDark ? 'Dark' : 'Light' }} Mode
         </v-chip>
-        
+
         <!-- Icon only for rail mode -->
         <div v-else class="text-center">
-          <v-icon 
-            :color="isDark ? 'purple' : 'amber'" 
-            size="20"
-          >
+          <v-icon :color="isDark ? 'purple' : 'amber'" size="20">
             {{ isDark ? 'mdi-weather-night' : 'mdi-weather-sunny' }}
           </v-icon>
         </div>
@@ -80,25 +78,35 @@
 </template>
 
 <script setup lang="ts">
-import { useAppTheme } from '@/composables/useTheme'
-import { ref, watch } from 'vue'
+//All vue related imports on top
+import { computed, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify'
+import { useAppTheme } from '@/composables/useTheme'
+
+//Store imports
+import { useLoginStore } from '@/stores/loginStore'
 
 const { isDark } = useAppTheme()
 const { mobile } = useDisplay()
 
+const loginStore = useLoginStore()
+
 // Make drawer reactive - closed on mobile, rail mode on desktop
-const drawer = ref(false)
+const showDrawer = computed({
+  get: () => loginStore.showSideNavList,
+  set: (val: boolean) => (loginStore.showSideNavList = val),
+})
+const owedAmnt = ref(-45)
 
 // Debug: Watch drawer state
-watch(drawer, (newVal) => {
-  console.log('Drawer state changed:', newVal ? 'Open (Full)' : 'Closed (Rail Mode)')
-})
+// watch(navDrawerProps.showDrawer, (newVal) => {
+//   console.log('Drawer state changed:', newVal ? 'Open (Full)' : 'Closed (Rail Mode)')
+// })
 
 const handleMenuItemClick = () => {
   // Close drawer on mobile when navigation item is clicked
   if (mobile.value) {
-    drawer.value = false
+    loginStore.showSideNavList = false
     console.log('Mobile navigation: Drawer closed after menu item click')
   }
 }
@@ -112,16 +120,11 @@ const menuItems = [
   { title: 'Profile', icon: 'mdi-account', to: '/profile' },
   { title: 'Notifications', icon: 'mdi-bell', to: '/notifications' },
 ]
-
-// Expose drawer for parent components to control
-defineExpose({
-  drawer
-})
 </script>
 
 <style scoped>
 .drawer-below-appbar {
-  top: 64px !important; /* Position below the app bar */
-  height: calc(100vh - 64px) !important; 
+  top: 64px !important; /* Position below the app bar only on desktop */
+  height: calc(100vh - 64px) !important;
 }
 </style>

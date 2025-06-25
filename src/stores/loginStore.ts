@@ -1,13 +1,18 @@
-import { computed, ref } from "vue"
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
-export const dancingLoginStore = () => {
-  // State to hold login details
+export const useLoginStore = defineStore('login', () => {
+  // States
   const loginDetails = ref(null)
   const userIndex = ref(0)
 
+  const showSideNavList = ref(false)
+
+
   const getLoginDetails = computed(() => {
-    return [loginDetails.value , userIndex.value]
+    return [loginDetails.value, userIndex.value]
   })
+
 
   const setLoginDetails = (details) => {
     loginDetails.value = details
@@ -30,8 +35,10 @@ export const dancingLoginStore = () => {
   return {
     loginDetails,
     fetchLoginDetails,
+    showSideNavList,
     getLoginDetails,
     userIndex,
     setLoginDetails,
   }
 }
+)
